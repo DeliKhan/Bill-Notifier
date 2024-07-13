@@ -12,7 +12,7 @@ google = oauth.remote_app(
     consumer_key=CLIENT_ID,
     consumer_secret=CLIENT_SECRET,
     request_token_params={
-        'scope': 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.events'
+        'scope': 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.profile'
     },
     base_url='https://www.googleapis.com/',
     request_token_url=None,
