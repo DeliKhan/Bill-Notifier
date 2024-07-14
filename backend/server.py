@@ -3,7 +3,6 @@ from flask_oauthlib.client import OAuth
 from config import SECRET_KEY, CLIENT_ID, CLIENT_SECRET
 
 app = Flask(__name__)
-
 app.secret_key = SECRET_KEY
 
 oauth = OAuth(app)
@@ -21,11 +20,16 @@ google = oauth.remote_app(
     authorize_url='https://accounts.google.com/o/oauth2/auth',
 )
 
+#this tokengetter allows us to call google.get (it tells it where to get the access token)
+@google.tokengetter
+def get_google_oauth_token():
+    return session.get('google_token')
+google.tokengetter(get_google_oauth_token)
 
 @app.route('/')
 def index():
     if 'google_token' in session:
-        return 'Logged in as: ' + session['google_token'][0]
+        return redirect(url_for('welcome'))#'Logged in as: ' + session['google_token'][0]
     return redirect(url_for('login'))
 
 @app.route('/login')
@@ -46,8 +50,12 @@ def authorized():
             request.args['error_description']
         )
     session['google_token'] = (resp['access_token'], '')
-    return redirect(url_for('index'))
+    return redirect(url_for('welcome'))
 
+@app.route('/welcome')
+def welcome():
+    user_info = google.get('oauth2/v1/userinfo').data
+    return user_info.get('name')
 
 if __name__ == '__main__':
     app.run()
