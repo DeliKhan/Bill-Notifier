@@ -1,9 +1,14 @@
-from flask import Flask, redirect, url_for, request, session
+from flask import Flask, redirect, url_for, request, session, jsonify
 from flask_oauthlib.client import OAuth
+from flask_cors import CORS, cross_origin
 from config import SECRET_KEY, CLIENT_ID, CLIENT_SECRET
+import copy
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+app.config['CORS_HEADERS'] = ['Content- Type','Authorization']
 
 oauth = OAuth(app)
 google = oauth.remote_app(
@@ -53,9 +58,13 @@ def authorized():
     return redirect(url_for('welcome'))
 
 @app.route('/welcome')
+#@cross_origin(origin='*',headers=['Content- Type','Authorization'])
 def welcome():
     user_info = google.get('oauth2/v1/userinfo').data
-    return user_info.get('name')
+    return jsonify({'data': user_info.get("name")})
+    #user_info = google.get('oauth2/v1/userinfo').data
+    #hello = copy.deepcopy(user_info.get("name"))
+    #return {"name" : str(hello)[0]}
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
